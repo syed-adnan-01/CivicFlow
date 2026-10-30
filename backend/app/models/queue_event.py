@@ -26,9 +26,5 @@ class QueueEvent(Base):
     to_status = Column(String, nullable=True)
     actor_user_id = Column(UUID(as_uuid=True), nullable=True)
     reason = Column(String, nullable=True)
-    metadata = Column(String, nullable=True)  # JSON string if needed
+    event_metadata = Column("metadata", String, nullable=True)  # maps to DB column 'metadata'
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
-
-    __table_args__ = (
-        Index('idx_queue_event_token', 'queue_token_id'),
-    )

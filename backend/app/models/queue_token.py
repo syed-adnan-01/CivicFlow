@@ -55,7 +55,7 @@ class QueueToken(Base):
     version = Column(Integer, nullable=True)
 
     __table_args__ = (
-        UniqueConstraint('appointment_id', name='uq_queue_tokens_appointment_id', deferrable=True, initially='DEFERRED', condition=appointment_id != None),
+        UniqueConstraint('appointment_id', name='uq_queue_tokens_appointment_id', deferrable=True, initially='DEFERRED'),
         Index('idx_queue_token_selection', 'office_id', 'service_id', 'operating_date', 'status', 'checked_in_at'),
         Index('idx_counter_active_token', 'assigned_counter_id', 'status'),
     )
