@@ -1,0 +1,54 @@
+{
+  "_comment": "Synthetic expected OCR extraction results and category classifications for QA verification.",
+  "samples": [
+    {
+      "fixture_filename": "synthetic_aadhaar_card.pdf",
+      "expected_category": "AADHAAR_CARD",
+      "expected_confidence_band": "HIGH",
+      "expected_snippets": [
+        "Government of India",
+        "Unique Identification Authority of India",
+        "Aadhaar",
+        "Synthetic Citizen",
+        "XXXX-XXXX-1234"
+      ],
+      "matched_checklist_items": [
+        "Photo ID",
+        "Proof of Address"
+      ],
+      "candidate_status": "PRESENT_CANDIDATE"
+    },
+    {
+      "fixture_filename": "synthetic_voter_id.jpg",
+      "expected_category": "VOTER_ID",
+      "expected_confidence_band": "HIGH",
+      "expected_snippets": [
+        "Election Commission of India",
+        "Elector Photo Identity Card",
+        "EPIC",
+        "Synthetic Citizen"
+      ],
+      "matched_checklist_items": [
+        "Photo ID"
+      ],
+      "candidate_status": "PRESENT_CANDIDATE"
+    },
+    {
+      "fixture_filename": "synthetic_residential_proof.pdf",
+      "expected_category": "RESIDENTIAL_CERTIFICATE",
+      "expected_confidence_band": "HIGH",
+      "expected_snippets": [
+        "Government of Karnataka",
+        "Revenue Department",
+        "Residential Certificate",
+        "Domicile",
+        "Synthetic Citizen"
+      ],
+      "matched_checklist_items": [
+        "Proof of Address"
+      ],
+      "candidate_status": "PRESENT_CANDIDATE"
+    }
+  ]
+}
+

@@ -9,8 +9,7 @@ but audit_events references internal user IDs for reviewed_by.
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text, Uuid
 
 from app.core.database import Base
 
@@ -18,7 +17,7 @@ from app.core.database import Base
 class KnowledgeDocument(Base):
     __tablename__ = "knowledge_documents"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String(500), nullable=False)
     authority = Column(String(300), nullable=False)
     source_url = Column(Text, nullable=False)
@@ -36,7 +35,7 @@ class KnowledgeDocument(Base):
     verification_status = Column(String(20), nullable=False, default="UNVERIFIED")
 
     # FK to internal user UUID — nullable; coordinate with Member 1 users table
-    reviewed_by = Column(UUID(as_uuid=True), nullable=True)
+    reviewed_by = Column(Uuid(as_uuid=True), nullable=True)
     review_notes = Column(Text, nullable=True)
 
     active = Column(Boolean, nullable=False, default=False,

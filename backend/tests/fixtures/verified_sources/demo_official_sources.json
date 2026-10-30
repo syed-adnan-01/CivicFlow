@@ -1,0 +1,56 @@
+{
+  "_comment": "Curated official demo sources for QueueLess 2.3 RAG assistant. Complies with Section 7.2 & 7.3.",
+  "sources": [
+    {
+      "id": "11111111-2222-3333-4444-555555555555",
+      "title": "Nadakacheri Citizen Service Prerequisite & Document Verification Guidelines",
+      "authority": "Directorate of Atalji Janasnehi Kendra, Government of Karnataka",
+      "source_url": "https://nadakacheri.karnataka.gov.in/service-prerequisites",
+      "service_scope": "Income Certificate",
+      "verification_status": "VERIFIED",
+      "active": true,
+      "retrieved_at": "2026-10-30T00:00:00Z",
+      "last_checked_at": "2026-10-30T00:00:00Z",
+      "review_notes": "Official citizen guidelines for Income and Caste certificate applications at Atalji Janasnehi Kendra citizen service counters.",
+      "chunks": [
+        {
+          "chunk_index": 0,
+          "section_heading": "1. Mandatory Identity Documents",
+          "page_number": 1,
+          "chunk_text": "Applicants visiting the citizen service centre for Income Certificate processing must present an original government-approved photo identity proof. Approved identity documents include: (1) Aadhaar card issued by UIDAI, or (2) Elector Photo Identity Card (EPIC / Voter ID) issued by the Election Commission of India. Photocopies must be accompanied by the original document for physical counter verification."
+        },
+        {
+          "chunk_index": 1,
+          "section_heading": "2. Residential and Address Proof",
+          "page_number": 1,
+          "chunk_text": "In addition to identity proof, applicants must provide residential verification. Acceptable address documents include: an active Domicile or Residential Certificate issued by the Revenue Department, a valid Ration Card (BPL or APL), or an electricity utility bill issued within the preceding 6 months in the name of the applicant or head of family."
+        },
+        {
+          "chunk_index": 2,
+          "section_heading": "3. Office Working Hours and Counter Operations",
+          "page_number": 2,
+          "chunk_text": "Citizen service centres operate Monday through Friday between 9:30 AM and 5:30 PM IST, excluding notified public holidays. Applicants holding scheduled appointment tokens must report to the helpdesk counter 10 minutes prior to their assigned time slot. Counter token processing fees must be settled exclusively at authorized departmental counters."
+        }
+      ]
+    },
+    {
+      "id": "99999999-8888-7777-6666-555555555555",
+      "title": "Directorate of Minorities PSI Training Document Verification Notice (6 Oct 2020)",
+      "authority": "Directorate of Minorities, Government of Karnataka",
+      "source_url": "https://dom.karnataka.gov.in/notices/psi-training-doc-verification-2020.pdf",
+      "service_scope": "PSI Training Document Verification",
+      "verification_status": "UNVERIFIED",
+      "active": false,
+      "review_notes": "Pending manual inspection of PDF endpoint per QueueLess 2.3 Section 7.3 constraint. Must NOT be used for general Income Certificate queries.",
+      "chunks": [
+        {
+          "chunk_index": 0,
+          "section_heading": "PSI Training Candidate Verification",
+          "page_number": 1,
+          "chunk_text": "Candidates selected for the 2020 PSI pre-examination coaching training scheme must attend the physical document verification with their hall ticket, educational qualification certificates, and minority community declaration."
+        }
+      ]
+    }
+  ]
+}
+

@@ -7,8 +7,7 @@ PostgreSQL is the authoritative record; ChromaDB is the retrieval index.
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, Uuid
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -17,9 +16,9 @@ from app.core.database import Base
 class KnowledgeChunk(Base):
     __tablename__ = "knowledge_chunks"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     knowledge_document_id = Column(
-        UUID(as_uuid=True),
+        Uuid(as_uuid=True),
         ForeignKey("knowledge_documents.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
