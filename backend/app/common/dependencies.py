@@ -34,9 +34,11 @@ async def get_current_user(
     if credentials:
         token = credentials.credentials
         # In full production, verify with firebase_admin (Member 1).
-        # For dev/test, resolve user from token claims or test header:
+        # For dev/test, resolve user deterministically from token:
+        import uuid
+        user_id = uuid.uuid5(uuid.NAMESPACE_DNS, f"queueless.user.{token}")
         return AuthenticatedUser(
-            id=uuid4(),
+            id=user_id,
             firebase_uid=f"firebase_{token[:8]}",
             role="OFFICE_ADMIN" if "admin" in token.lower() else "CITIZEN",
             is_active=True,

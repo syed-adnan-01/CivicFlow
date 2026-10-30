@@ -7,8 +7,7 @@ Must be kept separate from document processing state (CitizenDocument.processing
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, ForeignKey, String
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, DateTime, ForeignKey, String, Uuid
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -17,10 +16,10 @@ from app.core.database import Base
 class DocumentCheck(Base):
     __tablename__ = "document_checks"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     citizen_document_id = Column(
-        UUID(as_uuid=True),
+        Uuid(as_uuid=True),
         ForeignKey("citizen_documents.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -28,9 +27,9 @@ class DocumentCheck(Base):
 
     # FK to service_checklist_versions — Member 1 owns that table
     checklist_version_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("service_checklist_versions.id", ondelete="RESTRICT"),
+        Uuid(as_uuid=True),
         nullable=True,
+        comment="FK to service_checklist_versions.id — coordinated with Member 1",
     )
 
     # NEEDS_REVIEW | READY_FOR_REVIEW | UNAVAILABLE

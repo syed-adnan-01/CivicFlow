@@ -224,7 +224,7 @@ class DocumentService:
 
         items = [
             ChecklistItemRead(
-                checklist_item_id=ci.checklist_item_id,
+                checklist_item_id=UUID(str(ci.checklist_item_id)),
                 label=ChecklistMatcher.DEFAULT_CATEGORY_LABELS.get(str(ci.checklist_item_id), "Required Document"),
                 result=ci.result,
                 confidence_band=ci.confidence_band,

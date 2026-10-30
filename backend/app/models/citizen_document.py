@@ -9,8 +9,7 @@ Coordinate schema with Member 1 — foreign key to users table.
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, DateTime, Integer, String, Text, Uuid
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -19,21 +18,21 @@ from app.core.database import Base
 class CitizenDocument(Base):
     __tablename__ = "citizen_documents"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     # FK to users.id — Member 1 owns the users table
     citizen_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("users.id", ondelete="CASCADE"),
+        Uuid(as_uuid=True),
         nullable=False,
         index=True,
+        comment="FK to users.id — coordinated with Member 1",
     )
 
     # Optional FK to services.id — Member 1 owns services
     service_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("services.id", ondelete="SET NULL"),
+        Uuid(as_uuid=True),
         nullable=True,
+        comment="FK to services.id — coordinated with Member 1",
     )
 
     # Non-guessable object-storage key — never a public URL
@@ -49,6 +48,4 @@ class CitizenDocument(Base):
     updated_at = Column(DateTime(timezone=True), nullable=False,
                         default=datetime.utcnow, onupdate=datetime.utcnow)
     deleted_at = Column(DateTime(timezone=True), nullable=True)
-
-    citizen = relationship("User", lazy="select")
 

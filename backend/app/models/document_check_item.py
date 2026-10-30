@@ -6,8 +6,7 @@ One row per checklist item per document check result.
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Float, ForeignKey, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, DateTime, Float, ForeignKey, String, Text, Uuid
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -16,17 +15,17 @@ from app.core.database import Base
 class DocumentCheckItem(Base):
     __tablename__ = "document_check_items"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     check_id = Column(
-        UUID(as_uuid=True),
+        Uuid(as_uuid=True),
         ForeignKey("document_checks.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
 
     # FK to checklist items table — Member 1 owns service_documents table
-    checklist_item_id = Column(UUID(as_uuid=True), nullable=False)
+    checklist_item_id = Column(String(36), nullable=False)
 
     # PRESENT_CANDIDATE | MISSING | NEEDS_REVIEW | REPLACEMENT_REQUESTED | USER_CONFIRMED
     result = Column(String(30), nullable=False)

@@ -165,7 +165,7 @@ class DocumentRepository:
         for item in items:
             ci = DocumentCheckItem(
                 check_id=check.id,
-                checklist_item_id=item.checklist_item_id,
+                checklist_item_id=str(item.checklist_item_id),
                 result=item.result,
                 confidence_band=item.confidence_band,
                 review_note=item.message,
