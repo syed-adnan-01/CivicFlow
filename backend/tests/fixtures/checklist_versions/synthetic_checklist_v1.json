@@ -1,0 +1,25 @@
+[
+  {
+    "_comment": "Synthetic checklist version for the test service. Not a real government checklist.",
+    "id": "00000000-0000-0000-0000-000000000010",
+    "service_id": "00000000-0000-0000-0000-000000000099",
+    "version": 1,
+    "effective_date": "2026-10-01",
+    "active": true,
+    "items": [
+      {
+        "id": "00000000-0000-0000-0000-000000000011",
+        "name": "Photo ID",
+        "required": true,
+        "description": "Any valid government-issued photo identification."
+      },
+      {
+        "id": "00000000-0000-0000-0000-000000000012",
+        "name": "Proof of Address",
+        "required": true,
+        "description": "Any document showing current residential address."
+      }
+    ]
+  }
+]
+

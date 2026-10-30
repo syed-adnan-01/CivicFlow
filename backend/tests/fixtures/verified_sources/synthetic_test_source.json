@@ -1,0 +1,29 @@
+{
+  "_comment": "Synthetic RAG source fixture for local testing. This is NOT a real government source. Use only in test/development environments.",
+  "id": "00000000-0000-0000-0000-000000000001",
+  "title": "SYNTHETIC TEST SOURCE — Do Not Use in Production",
+  "authority": "QueueLess Test Authority",
+  "source_url": "https://example.test/synthetic-service-guide",
+  "service_scope": "Synthetic test service for QueueLess RAG unit tests",
+  "verification_status": "VERIFIED",
+  "active": true,
+  "retrieved_at": "2026-10-30T00:00:00Z",
+  "last_checked_at": "2026-10-30T00:00:00Z",
+  "effective_date": null,
+  "content_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "chunks": [
+    {
+      "chunk_index": 0,
+      "chunk_text": "To use the Synthetic Test Service, applicants must bring a valid photo ID and a proof of address document. This is a synthetic test document and does not represent any real government requirement.",
+      "page_number": 1,
+      "section_heading": "Required Documents"
+    },
+    {
+      "chunk_index": 1,
+      "chunk_text": "The office is open Monday to Friday, 9:00 AM to 5:00 PM IST. This is a synthetic test document.",
+      "page_number": 1,
+      "section_heading": "Office Hours"
+    }
+  ]
+}
+
