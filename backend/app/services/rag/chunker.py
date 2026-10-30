@@ -75,18 +75,21 @@ class TextChunker:
         heading_pattern = re.compile(r"^(?:#{1,4}\s+|[0-9]+\.\s+|[A-Z\s]{4,}:)")
 
         for para in paragraphs:
-            # Check if this paragraph looks like a heading
-            if heading_pattern.match(para) and len(para) < 120:
+            is_heading = bool(heading_pattern.match(para) and len(para) < 120)
+            if is_heading:
                 current_heading = para.lstrip("#").strip()
 
             para_len = len(para)
-            if current_len + para_len > self.max_chars and current_len >= self.min_chars:
+            should_split_heading = is_heading and current_len >= self.min_chars
+            should_split_size = (current_len + para_len > self.max_chars and current_len >= self.min_chars)
+
+            if (should_split_heading or should_split_size) and current_paragraphs:
                 chunk_body = "\n\n".join(current_paragraphs)
                 raw_chunks.append((chunk_body, current_heading))
 
-                # Handle overlap: retain last paragraph if it fits within overlap window
+                # Handle overlap: retain last paragraph if it fits within overlap window and is not a heading
                 overlap_text = current_paragraphs[-1] if current_paragraphs else ""
-                if len(overlap_text) <= self.overlap_chars:
+                if len(overlap_text) <= self.overlap_chars and not heading_pattern.match(overlap_text):
                     current_paragraphs = [overlap_text, para]
                     current_len = len(overlap_text) + para_len
                 else:
