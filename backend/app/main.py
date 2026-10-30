@@ -13,6 +13,10 @@ from app.integrations.firebase_admin import init_firebase_admin
 from app.modules.auth.router import router as auth_router
 from app.modules.catalogue.router import router as catalogue_router
 from app.modules.appointments.router import router as appointments_router
+try:
+    from app.modules.checkin.router import router as checkin_router
+except ImportError:
+    from backend.app.modules.checkin.router import router as checkin_router
 
 
 @asynccontextmanager
@@ -21,7 +25,7 @@ async def lifespan(app: FastAPI):
     setup_logging()
     init_firebase_admin()
     yield
-    # Shutdown
+    # Shutdown (if needed)
 
 
 app = FastAPI(
@@ -51,6 +55,7 @@ if settings.APP_ENV == "production":
 app.include_router(auth_router)
 app.include_router(catalogue_router)
 app.include_router(appointments_router)
+app.include_router(checkin_router, prefix="/api/v1")
 
 
 @app.get("/health", tags=["Health"])
