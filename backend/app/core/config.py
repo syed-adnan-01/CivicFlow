@@ -10,8 +10,15 @@ class Settings(BaseSettings):
     # PostgreSQL Database
     DATABASE_URL: str = "postgresql+psycopg://queueless:queueless_secret@localhost:5432/queueless_db"
 
-    # Firebase Authentication
-    FIREBASE_PROJECT_ID: str = "queueless-dev"
+    # Firebase Authentication & Client Config
+    FIREBASE_PROJECT_ID: str = "civicflow-18c55"
+    FIREBASE_API_KEY: Optional[str] = None
+    FIREBASE_AUTH_DOMAIN: Optional[str] = None
+    FIREBASE_STORAGE_BUCKET: Optional[str] = None
+    FIREBASE_MESSAGING_SENDER_ID: Optional[str] = None
+    FIREBASE_APP_ID: Optional[str] = None
+    FIREBASE_MEASUREMENT_ID: Optional[str] = None
+
     GOOGLE_APPLICATION_CREDENTIALS: Optional[str] = None
     FIREBASE_CHECK_REVOKED: bool = False
 
