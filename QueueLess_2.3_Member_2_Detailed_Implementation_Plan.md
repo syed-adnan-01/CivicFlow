@@ -1207,3 +1207,64 @@ Payloads are examples only. Final payloads must be versioned and privacy-reviewe
 | Counter transfer | P1 unless explicitly required for demo | Members 2, 3 |
 
 **Final implementation principle:** protect correctness in PostgreSQL first, expose stable APIs second, and add live updates third. A slightly less animated queue that never double-books a counter is better than a dazzling dashboard showing two citizens being served at the same desk.
+-----------------------------------------------------
+Phase 1 – Project Setup & Foundations
+Virtual environment, FastAPI, SQLAlchemy, Alembic, PostgreSQL.
+Initial migrations for queue_tokens & queue_events (indexes, constraints).
+ORM models & repository stubs.
+Phase 2 – Check‑in Orchestration Service
+QR (POST /api/v1/checkin) & manual (POST /api/v1/appointments/{id}/check‑in/manual) endpoints.
+Atomic transaction: lock appointment/QR, validate window, create one queue_token.
+Use shared Firebase authentication.
+Phase 3 – Walk‑in Registration
+POST /api/v1/queue/tokens endpoint for officers.
+Office/service validation, token‑number sequencing, event logging.
+Implement 45‑min overdue walk‑in promotion rule.
+Phase 4 – Token State‑Machine Service
+Central transition_token service.
+Enforce all state‑machine rules, insert immutable queue_events & outbox rows in the same DB transaction.
+Phase 5 – Counter Operations
+Eligibility checks (active, staffed, service‑compatible, not busy).
+Endpoints: call‑next, start, hold, resume, complete, withdraw‑call, no‑show, optional transfer.
+Row locking (SELECT … FOR UPDATE) and one‑active‑token‑per‑counter invariant.
+Phase 6 – Real‑time Updates & WebSocket Integration
+Outbox pattern → async publisher.
+POST /api/v1/realtime/tickets for short‑lived WebSocket tickets.
+Publish scoped events after commit (token_created, token_called, etc.).
+
+Phase 8 – Testing, CI & Quality Assurance
+Unit, integration, concurrency tests for all services.
+CI pipeline (GitHub Actions) with linting and test runs.
+Phase 9 – Documentation & Hand‑off
+OpenAPI/Swagger docs, README updates, deployment notes.
+Hand‑off guide for other members (Member 1, Member 3, etc.).
+Phase 2 – Check‑in Orchestration Service
+QR (POST /api/v1/checkin) & manual (POST /api/v1/appointments/{id}/check‑in/manual) endpoints.
+Atomic transaction: lock appointment/QR, validate window, create one queue_token.
+Use shared Firebase authentication.
+Phase 3 – Walk‑in Registration
+POST /api/v1/queue/tokens endpoint for officers.
+Office/service validation, token‑number sequencing, event logging.
+Implement 45‑min overdue walk‑in promotion rule.
+Phase 4 – Token State‑Machine Service
+Central transition_token service.
+Enforce all state‑machine rules, insert immutable queue_events & outbox rows in the same DB transaction.
+Phase 5 – Counter Operations
+Eligibility checks (active, staffed, service‑compatible, not busy).
+Endpoints: call‑next, start, hold, resume, complete, withdraw‑call, no‑show, optional transfer.
+Row locking (SELECT … FOR UPDATE) and one‑active‑token‑per‑counter invariant.
+Phase 6 – Real‑time Updates & WebSocket Integration
+Outbox pattern → async publisher.
+POST /api/v1/realtime/tickets for short‑lived WebSocket tickets.
+Publish scoped events after commit (token_created, token_called, etc.).
+Phase 7 – Policy Consumption & Fairness Logic
+Read shared queue_policy (check‑in windows, walk‑in max‑wait, token reset).
+Encode overdue walk‑in promotion in Phase 7 – Policy Consumption & Fairness Logic
+Read shared queue_policy (check‑in windows, walk‑in max‑wait, token reset).
+Encode overdue walk‑in promotion in call‑next.call‑next.
+Phase 8 – Testing, CI & Quality Assurance
+Unit, integration, concurrency tests for all services.
+CI pipeline (GitHub Actions) with linting and test runs.
+Phase 9 – Documentation & Hand‑off
+OpenAPI/Swagger docs, README updates, deployment notes.
+Hand‑off guide for other members (Member 1, Member 3, etc.).

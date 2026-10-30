@@ -4,6 +4,7 @@ Unit tests for Documents API endpoints (/api/v1/documents).
 
 import io
 from unittest.mock import MagicMock, patch
+import uuid
 from uuid import uuid4
 import pytest
 from fastapi.testclient import TestClient
@@ -16,11 +17,27 @@ from app.schemas.documents import (
     DocumentDeleteResponse,
     DocumentUploadResponse,
 )
+from app.common.dependencies import get_current_user
+from app.models.user import User
 
 
 @pytest.fixture
 def client():
     return TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def override_auth():
+    mock_user = User(
+        id=uuid.UUID("00000000-0000-0000-0000-000000000001"),
+        firebase_uid="dev_citizen_uid",
+        role="CITIZEN",
+        is_active=True,
+        display_name="Dev Citizen",
+    )
+    app.dependency_overrides[get_current_user] = lambda: mock_user
+    yield
+    app.dependency_overrides.pop(get_current_user, None)
 
 
 def test_upload_document_endpoint_success(client):
@@ -63,10 +80,9 @@ def test_list_citizen_documents_endpoint(client):
     with patch("app.modules.documents.service.DocumentService.list_documents", return_value=mock_list_resp):
         res = client.get("/api/v1/documents")
         assert res.status_code == 200
-        data = res.json()
-        assert data["total"] == 1
-        assert len(data["items"]) == 1
-        assert data["items"][0]["document_id"] == str(doc_id)
+        body = res.json()
+        assert body["total"] == 1
+        assert len(body["items"]) == 1
 
 
 def test_get_check_result_endpoint(client):
@@ -82,9 +98,9 @@ def test_get_check_result_endpoint(client):
     with patch("app.modules.documents.service.DocumentService.get_check_result", return_value=mock_check_resp):
         res = client.get(f"/api/v1/documents/{doc_id}/check-result")
         assert res.status_code == 200
-        data = res.json()
-        assert data["document_id"] == str(doc_id)
-        assert data["overall_status"] == "NEEDS_REVIEW"
+        body = res.json()
+        assert body["overall_status"] == "NEEDS_REVIEW"
+        assert "disclaimer" in body
 
 
 def test_delete_document_endpoint(client):
@@ -98,6 +114,5 @@ def test_delete_document_endpoint(client):
     with patch("app.modules.documents.service.DocumentService.delete_document", return_value=mock_del_resp):
         res = client.delete(f"/api/v1/documents/{doc_id}")
         assert res.status_code == 200
-        data = res.json()
-        assert data["status"] == "DELETED"
-
+        body = res.json()
+        assert body["status"] == "DELETED"

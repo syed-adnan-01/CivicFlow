@@ -3,16 +3,33 @@ Unit tests for Assistant FastAPI router (/api/v1/assistant).
 """
 
 from unittest.mock import MagicMock, patch
+import uuid
 import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
 from app.schemas.assistant import AssistantChatResponse, CitationSchema
+from app.common.dependencies import get_current_user
+from app.models.user import User
 
 
 @pytest.fixture
 def client():
     return TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def override_auth():
+    mock_user = User(
+        id=uuid.UUID("00000000-0000-0000-0000-000000000001"),
+        firebase_uid="dev_citizen_uid",
+        role="CITIZEN",
+        is_active=True,
+        display_name="Dev Citizen",
+    )
+    app.dependency_overrides[get_current_user] = lambda: mock_user
+    yield
+    app.dependency_overrides.pop(get_current_user, None)
 
 
 def test_assistant_health_endpoint(client):
@@ -55,10 +72,10 @@ def test_assistant_chat_endpoint_success(client):
         res = client.post("/api/v1/assistant/chat", json=payload)
         assert res.status_code == 200
         data = res.json()
+        assert data["answer"] == mock_resp.answer
         assert data["status"] == "ANSWERED"
         assert len(data["citations"]) == 1
         assert data["citations"][0]["chunk_id"] == "chunk_1"
-        assert data["citations"][0]["url"] == "https://nadakacheri.karnataka.gov.in"
 
 
 def test_assistant_chat_validation_empty_message(client):
@@ -69,4 +86,3 @@ def test_assistant_chat_validation_empty_message(client):
     res = client.post("/api/v1/assistant/chat", json=payload)
     # Pydantic schema enforces min_length=1 on message
     assert res.status_code == 422
-

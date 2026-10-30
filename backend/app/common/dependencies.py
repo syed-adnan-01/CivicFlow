@@ -1,62 +1,125 @@
-"""
-Common FastAPI dependencies for authentication and database sessions.
-"""
-
-from typing import Optional
-from uuid import UUID, uuid4
-from pydantic import BaseModel
-from fastapi import Depends, HTTPException, status
+import uuid
+from typing import Any, Dict, List, Optional
+from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.errors import AppError
+from app.core.time import utc_now
+from app.integrations.firebase_admin import verify_firebase_id_token
+from app.models.user import User
+from app.models.audit_event import AuditEvent
+
+# Alias for backward-compatibility with Member 4 modules
+AuthenticatedUser = User
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
 
-class AuthenticatedUser(BaseModel):
-    id: UUID
-    firebase_uid: str
-    role: str = "CITIZEN"
-    is_active: bool = True
-    display_name: Optional[str] = None
-    email: Optional[str] = None
-
-
-async def get_current_user(
+def get_verified_firebase_claims(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
+) -> Dict[str, Any]:
+    """Extract and verify Firebase Bearer ID token from request."""
+    if credentials is None or credentials.scheme.lower() != "bearer":
+        raise AppError(
+            status_code=401,
+            code="UNAUTHENTICATED",
+            message="Bearer token required.",
+        )
+    return verify_firebase_id_token(credentials.credentials)
+
+
+def get_current_user(
+    claims: Dict[str, Any] = Depends(get_verified_firebase_claims),
     db: Session = Depends(get_db),
-) -> AuthenticatedUser:
+) -> User:
     """
-    Validates Firebase ID token and resolves internal user.
-    Provides mock/development user in test/development environments if no credentials provided.
+    Resolve internal QueueLess user from verified Firebase claims.
+    If user does not exist, provision as CITIZEN transactionally.
+    Rejects inactive users.
     """
-    if credentials:
-        token = credentials.credentials
-        # In full production, verify with firebase_admin (Member 1).
-        # For dev/test, resolve user deterministically from token:
-        import uuid
-        user_id = uuid.uuid5(uuid.NAMESPACE_DNS, f"queueless.user.{token}")
-        return AuthenticatedUser(
-            id=user_id,
-            firebase_uid=f"firebase_{token[:8]}",
-            role="OFFICE_ADMIN" if "admin" in token.lower() else "CITIZEN",
-            is_active=True,
+    firebase_uid = claims.get("uid")
+    if not firebase_uid:
+        raise AppError(
+            status_code=401,
+            code="UNAUTHENTICATED",
+            message="Invalid authentication credentials; missing uid claim.",
         )
 
-    # In development mode, allow a default authenticated test user if configured
-    from app.core.config import settings
-    if settings.APP_ENV in ("development", "test"):
-        return AuthenticatedUser(
-            id=UUID("00000000-0000-0000-0000-000000000001"),
-            firebase_uid="dev_citizen_uid",
-            role="OFFICE_ADMIN",
+    user = db.query(User).filter(User.firebase_uid == firebase_uid).first()
+    if not user:
+        # First-time citizen provisioning with least-privilege CITIZEN role
+        phone_number = claims.get("phone_number")
+        display_name = claims.get("name") or (f"Citizen {phone_number[-4:]}" if phone_number else "Citizen")
+        user = User(
+            id=uuid.uuid4(),
+            firebase_uid=firebase_uid,
+            phone_number=phone_number,
+            display_name=display_name,
+            role="CITIZEN",
             is_active=True,
-            display_name="Dev Admin User",
+            last_login_at=utc_now(),
         )
+        db.add(user)
 
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail={"code": "UNAUTHENTICATED", "message": "Authentication required"},
+        # Audit user provisioning
+        audit = AuditEvent(
+            actor_id=user.id,
+            actor_role="CITIZEN",
+            action="USER_PROVISIONED",
+            resource_type="USER",
+            resource_id=str(user.id),
+            timestamp=utc_now(),
+            reason="First-time sign-in through Firebase Authentication",
+        )
+        db.add(audit)
+        db.commit()
+        db.refresh(user)
+    else:
+        # Check active status
+        if not user.is_active:
+            raise AppError(
+                status_code=403,
+                code="FORBIDDEN",
+                message="Account has been deactivated. Contact administration.",
+            )
+        # Update last login timestamp
+        user.last_login_at = utc_now()
+        db.commit()
+        db.refresh(user)
+
+    return user
+
+
+def require_role(*roles: str):
+    """Dependency factory ensuring current user possesses one of the allowed roles."""
+    def role_checker(current_user: User = Depends(get_current_user)) -> User:
+        if current_user.role not in roles:
+            raise AppError(
+                status_code=403,
+                code="FORBIDDEN",
+                message=f"Access denied. Requires one of roles: {', '.join(roles)}",
+            )
+        return current_user
+
+    return role_checker
+
+
+def require_office_scope(office_id: uuid.UUID, current_user: User = Depends(get_current_user)) -> None:
+    """Verifies that staff/officer has scope for the requested office."""
+    if current_user.role in ("PLATFORM_ADMIN",):
+        return
+    if current_user.role in ("OFFICER", "OFFICE_ADMIN"):
+        if current_user.office_id != office_id:
+            raise AppError(
+                status_code=403,
+                code="FORBIDDEN",
+                message="Access denied to this office resource.",
+            )
+        return
+    raise AppError(
+        status_code=403,
+        code="FORBIDDEN",
+        message="Staff office scope required.",
     )
-
